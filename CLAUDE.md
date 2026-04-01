@@ -20,6 +20,7 @@ This directory contains a library of Claude agents. When working inside this pro
 | Text going into emails or documents (check for encoding issues) | `agents/utility/text-sanitizer` — always run before sending |
 | Any task that produces visible output (emails sent, files changed, etc.) | `agents/utility/screenshot-reporter` — run at the end |
 | User message is vague, uses "it/that/the thing" with no clear referent | `agents/utility/context-manager` — ask one clarifying question |
+| Committing and pushing changes to GitHub | `agents/utility/github-committer` |
 | Generating HTML button pages with ElevenLabs audio for GitHub/static hosting | `agents/mcp-powered/elevenlabs/elevenlabs-github-exporter` |
 | Removing background from an image | `agents/mcp-powered/removebg/removebg` |
 | Converting text to speech, generating voiceover | `agents/mcp-powered/elevenlabs/elevenlabs-tts` |
