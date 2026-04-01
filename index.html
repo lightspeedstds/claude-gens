@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Agents — Getting Started</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #7c6af7;
+      --accent-dim: #3d3580;
+      --green: #3ecf8e;
+      --yellow: #f5a623;
+      --red: #f26464;
+      --text: #e2e4ed;
+      --muted: #7a7f99;
+      --code-bg: #12141e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* Layout */
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+
+    /* Header */
+    .hero { text-align: center; padding: 64px 0 48px; }
+    .hero h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); margin-top: 12px; font-size: 1.05rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .badge-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+    .badge { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; color: var(--muted); }
+    .badge.green { border-color: var(--green); color: var(--green); }
+
+    /* Nav */
+    .nav { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px; }
+    .nav a { color: var(--muted); text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 0.88rem; transition: all 0.15s; }
+    .nav a:hover { background: var(--surface); color: var(--text); }
+
+    /* Steps */
+    .step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; }
+    .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .step-num { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.88rem; flex-shrink: 0; }
+    .step h2 { font-size: 1.15rem; font-weight: 600; }
+    .step p { color: var(--muted); margin-bottom: 14px; font-size: 0.95rem; }
+    .step p:last-child { margin-bottom: 0; }
+
+    /* Code blocks */
+    .code-block { position: relative; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 14px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; overflow-x: auto; }
+    .code-block code { color: #c8d0f0; white-space: pre; display: block; }
+    .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--border); border: none; color: var(--muted); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
+    .copy-btn:hover { background: var(--accent); color: #fff; }
+    .copy-btn.copied { background: var(--green); color: #000; }
+
+    /* Inline code */
+    code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.83em; color: #c8d0f0; }
+
+    /* Callouts */
+    .callout { border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.9rem; display: flex; gap: 10px; }
+    .callout.info  { background: #1a1f3a; border-left: 3px solid var(--accent); }
+    .callout.warn  { background: #2a1f10; border-left: 3px solid var(--yellow); }
+    .callout.good  { background: #0f2a1f; border-left: 3px solid var(--green); }
+    .callout .icon { flex-shrink: 0; font-size: 1rem; }
+    .callout p { margin: 0; color: var(--text); }
+
+    /* Checklist */
+    .checklist { list-style: none; }
+    .checklist li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 10px; font-size: 0.93rem; }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li::before { content: '○'; color: var(--muted); flex-shrink: 0; }
+
+    /* Agent cards */
+    .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+    .agent-card { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+    .agent-card .name { font-weight: 600; font-size: 0.88rem; color: var(--accent); margin-bottom: 4px; }
+    .agent-card .desc { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+
+    /* Section headings */
+    h3 { font-size: 0.95rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 20px 0 10px; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    /* Footer */
+    footer { text-align: center; color: var(--muted); font-size: 0.82rem; padding-top: 32px; }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* Link */
+    a.link { color: var(--accent); text-decoration: none; }
+    a.link:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.8rem; }
+      .step { padding: 20px; }
+      .container { padding: 24px 16px 64px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Claude <span>Agents</span></h1>
+    <p>A collection of AI agents that plug into Claude Code — handling Gmail, Google Calendar, Docs, Sheets, files, RAM, and more.</p>
+    <div class="badge-row">
+      <span class="badge green">55+ agents</span>
+      <span class="badge">Gmail</span>
+      <span class="badge">Google Workspace</span>
+      <span class="badge">Chrome DevTools</span>
+      <span class="badge">Canva</span>
+      <span class="badge">macOS</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="#prereqs">Prerequisites</a>
+    <a href="#install">Install</a>
+    <a href="#google">Google Setup</a>
+    <a href="#mcps">Connect MCPs</a>
+    <a href="#agents">Agents</a>
+    <a href="#usage">Usage</a>
+  </nav>
+
+  <!-- What is this -->
+  <div class="step">
+    <div class="step-header">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:1rem;">💡</div>
+      <h2>What is this?</h2>
+    </div>
+    <p>These are <strong>Claude Code agents</strong> — specialised AI assistants that live as <code>.md</code> files. You invoke them by name inside Claude Code (e.g. <code>@gmail-inbox-triage triage my inbox</code>) and they use real tools to get things done: send emails, edit spreadsheets, clean your drive, debug webpages, and more.</p>
+    <p>They work through <strong>MCPs</strong> (Model Context Protocol servers) — connectors that give Claude access to external services like Gmail, Google Drive, and Chrome DevTools.</p>
+    <div class="callout info">
+      <span class="icon">ℹ️</span>
+      <p>You need <strong>Claude Code</strong> (the CLI or VSCode extension) — not just the claude.ai website. Agents don't work in the browser chat.</p>
+    </div>
+  </div>
+
+  <hr class="divider" id="prereqs">
+
+  <!-- Step 1 - Prerequisites -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <h2>Prerequisites</h2>
+    </div>
+    <p>Make sure these are installed before running setup:</p>
+    <ul class="checklist">
+      <li><strong>macOS or Linux</strong> — most agents are cross-platform. Note: <code>ram-optimizer</code> uses macOS-only tools (<code>vm_stat</code>, <code>osascript</code>) and will not run on Linux</li>
+      <li><strong>Node.js 18+</strong> — needed to run MCP servers via <code>npx</code>. Download from <a href="https://nodejs.org" class="link">nodejs.org</a></li>
+      <li><strong>Python 3.7+</strong> — needed by <code>lead-extractor</code> and <code>text-sanitizer</code>. Setup auto-detects <code>python3</code> or <code>python</code></li>
+      <li><strong>Claude Code</strong> — the CLI or VSCode extension. Get it from <a href="https://claude.ai/code" class="link">claude.ai/code</a></li>
+      <li><strong>Google Chrome</strong> — only needed for Chrome DevTools agents. Install via <code>brew install --cask google-chrome</code> (macOS) or from <a href="https://google.com/chrome" class="link">google.com/chrome</a></li>
+      <li><strong>A Google account</strong> — for Gmail, Calendar, Drive, and Workspace agents</li>
+    </ul>
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <p>Check your Node version: <code>node --version</code> — must be v18 or higher.</p>
+    </div>
+  </div>
+
+  <hr class="divider" id="install">
+
+  <!-- Step 2 - Install -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <h2>Download &amp; Install</h2>
+    </div>
+    <p>Clone or download the project, then run the setup script. It patches all agent files with your local paths and registers MCPs with Claude Code automatically.</p>
+
+    <h3>Option A — git clone</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>git clone https://github.com/your-repo/claude-agents ~/claude-agents
+cd ~/claude-agents
+bash setup.sh</code>
+    </div>
+
+    <h3>Option B — download ZIP</h3>
+    <p>Download and unzip anywhere, then open Terminal in that folder and run:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>bash setup.sh</code>
+    </div>
+
+    <h3>Open in Claude Code</h3>
+    <p>After setup, open Claude Code with this folder as the workspace:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>claude ~/claude-agents</code>
+    </div>
+
+    <div class="callout good">
+      <span class="icon">✅</span>
+      <p>The setup script replaces all hardcoded paths, creates the <code>_shared/</code> directories, and registers Chrome DevTools automatically. Google MCPs require the extra steps below.</p>
+    </div>
+  </div>
+
+  <hr class="divider" id="google">
+
+  <!-- Step 3 - Google OAuth -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <h2>Google OAuth Setup</h2>
+    </div>
+    <p>Gmail, Calendar, Drive, and Workspace agents need a Google Cloud OAuth2 credential. You only do this once — the same file works for all of them.</p>
+
+    <div class="callout info">
+      <span class="icon">ℹ️</span>
+      <p>You're creating a private "app" in Google Cloud that has permission to access your own Google account. Nothing is shared publicly.</p>
+    </div>
+
+    <h3>1 — Create a Google Cloud project</h3>
+    <p>Go to <a href="https://console.cloud.google.com" class="link">console.cloud.google.com</a> → click the project dropdown → <strong>New Project</strong> → name it anything (e.g. <em>ClaudeAgents</em>) → <strong>Create</strong>.</p>
+
+    <h3>2 — Enable APIs</h3>
+    <p>Go to <strong>APIs &amp; Services → Library</strong> and enable these one by one:</p>
+    <ul class="checklist">
+      <li>Gmail API</li>
+      <li>Google Calendar API</li>
+      <li>Google Drive API</li>
+      <li>Google Docs API</li>
+      <li>Google Sheets API</li>
+      <li>Google Slides API</li>
+    </ul>
+    <p>Search each one by name and click <strong>Enable</strong>.</p>
+
+    <h3>3 — Configure OAuth consent screen</h3>
+    <p>Go to <strong>APIs &amp; Services → OAuth consent screen</strong>:</p>
+    <ul class="checklist">
+      <li>User type: <strong>External</strong> → Create</li>
+      <li>App name: anything (e.g. <em>ClaudeAgents</em>)</li>
+      <li>Support email: your Gmail</li>
+      <li>Click through the rest with defaults → Save</li>
+      <li>On the <strong>Test users</strong> page → <strong>Add Users</strong> → add your own Gmail address</li>
+    </ul>
+
+    <h3>4 — Create OAuth credentials</h3>
+    <p>Go to <strong>APIs &amp; Services → Credentials → Create Credentials → OAuth Client ID</strong>:</p>
+    <ul class="checklist">
+      <li>Application type: <strong>Desktop app</strong></li>
+      <li>Name: anything</li>
+      <li>Click <strong>Create</strong></li>
+      <li>Click <strong>Download JSON</strong></li>
+    </ul>
+
+    <h3>5 — Place the credentials file</h3>
+    <p>Rename the downloaded file to <code>gcp-oauth.keys.json</code> and copy it to each service directory:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>mkdir -p ~/.gmail-mcp ~/.calendar-mcp ~/.gdrive-mcp ~/.workspace-mcp
+
+# Replace ~/Downloads/client_secret_xxx.json with your actual filename
+cp ~/Downloads/client_secret_xxx.json ~/.gmail-mcp/gcp-oauth.keys.json
+cp ~/.gmail-mcp/gcp-oauth.keys.json ~/.calendar-mcp/gcp-oauth.keys.json
+cp ~/.gmail-mcp/gcp-oauth.keys.json ~/.gdrive-mcp/gcp-oauth.keys.json
+cp ~/.gmail-mcp/gcp-oauth.keys.json ~/.workspace-mcp/gcp-oauth.keys.json</code>
+    </div>
+
+    <h3>6 — Authenticate each service</h3>
+    <p>Run these one at a time. Each opens a browser window — sign in with your Google account and click <strong>Allow</strong>.</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code># Gmail
+npx @gongrzhe/server-gmail-autoauth-mcp auth
+
+# Google Calendar
+npx -y @gongrzhe/server-calendar-autoauth-mcp auth
+
+# Google Drive
+GDRIVE_OAUTH_PATH=~/.gdrive-mcp/gcp-oauth.keys.json \
+GDRIVE_CREDENTIALS_PATH=~/.gdrive-mcp/credentials.json \
+npx -y @modelcontextprotocol/server-gdrive auth
+
+# Google Workspace (run it once — it will open a browser)
+CLIENT_ID=your_client_id \
+CLIENT_SECRET=your_client_secret \
+GWORKSPACE_CREDS_DIR=~/.workspace-mcp \
+npx -y @alanse/mcp-server-google-workspace</code>
+    </div>
+
+    <div class="callout warn">
+      <span class="icon">⚠️</span>
+      <p>For the Workspace command, replace <code>your_client_id</code> and <code>your_client_secret</code> with the values from your <code>gcp-oauth.keys.json</code> file (the <code>client_id</code> and <code>client_secret</code> fields).</p>
+    </div>
+
+    <div class="callout good">
+      <span class="icon">✅</span>
+      <p>If Google shows "Access blocked" — go back to the OAuth consent screen → <strong>Test users</strong> → add your email address.</p>
+    </div>
+  </div>
+
+  <hr class="divider" id="mcps">
+
+  <!-- Step 4 - MCPs -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <h2>Register MCPs with Claude Code</h2>
+    </div>
+    <p>After completing OAuth, run the setup script again — it will detect your credential files and register everything:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>bash setup.sh</code>
+    </div>
+    <p>Or register manually:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>claude mcp add -s user chrome-devtools -- npx -y chrome-devtools-mcp@latest
+
+claude mcp add -s user gmail-local -- npx @gongrzhe/server-gmail-autoauth-mcp
+
+claude mcp add -s user google-calendar-local -- npx -y @gongrzhe/server-calendar-autoauth-mcp
+
+claude mcp add -s user google-drive \
+  -e GDRIVE_OAUTH_PATH=$HOME/.gdrive-mcp/gcp-oauth.keys.json \
+  -e GDRIVE_CREDENTIALS_PATH=$HOME/.gdrive-mcp/credentials.json \
+  -- npx -y @modelcontextprotocol/server-gdrive
+
+claude mcp add -s user google-workspace \
+  -e CLIENT_ID=your_client_id \
+  -e CLIENT_SECRET=your_client_secret \
+  -e GWORKSPACE_CREDS_DIR=$HOME/.workspace-mcp \
+  -- npx -y @alanse/mcp-server-google-workspace</code>
+    </div>
+
+    <p>Verify everything connected:</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code>claude mcp list</code>
+    </div>
+
+    <p>You should see <strong>✓ Connected</strong> next to each server. Then restart Claude Code.</p>
+  </div>
+
+  <hr class="divider" id="agents">
+
+  <!-- Step 5 - Agents -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <h2>Available Agents</h2>
+    </div>
+    <p>Once set up, invoke any agent with <code>@agent-name your request</code> in Claude Code.</p>
+
+    <h3>File Management</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">stale-file-hunter</div><div class="desc">Find files you haven't touched in months across your drive and cloud</div></div>
+      <div class="agent-card"><div class="name">storage-cleaner</div><div class="desc">Find duplicate files, caches, and junk eating your SSD</div></div>
+      <div class="agent-card"><div class="name">corrupted-file-scanner</div><div class="desc">Check files for corruption — broken images, bad archives, etc.</div></div>
+    </div>
+
+    <h3>System</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">ram-optimizer</div><div class="desc">Diagnose memory pressure, find RAM hogs, reclaim memory safely</div></div>
+      <div class="agent-card"><div class="name">mcp-installer</div><div class="desc">Find and install new MCPs end-to-end including auth</div></div>
+    </div>
+
+    <h3>Research</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">researcher</div><div class="desc">Web research with source citations</div></div>
+      <div class="agent-card"><div class="name">verifier</div><div class="desc">Fact-check and cross-reference claims</div></div>
+      <div class="agent-card"><div class="name">youtube-channel-scout</div><div class="desc">Find and rank YouTube channels by topic and metrics</div></div>
+    </div>
+
+    <h3>Orchestration</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">parallel-orchestrator</div><div class="desc">Run multiple agents simultaneously — much faster for multi-part tasks</div></div>
+      <div class="agent-card"><div class="name">bash-cmd-runner</div><div class="desc">Run shell commands in parallel with timing and error reporting</div></div>
+    </div>
+
+    <h3>Gmail</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">gmail-inbox-triage</div><div class="desc">Prioritised inbox summary — urgent vs. FYI vs. skip</div></div>
+      <div class="agent-card"><div class="name">gmail-drafter</div><div class="desc">Write and send emails from plain English</div></div>
+      <div class="agent-card"><div class="name">gmail-search-assistant</div><div class="desc">Find emails in plain English without knowing Gmail syntax</div></div>
+      <div class="agent-card"><div class="name">multi-person-gmail-blaster</div><div class="desc">Send personalised emails to dozens of recipients in parallel waves — handles guests, templates, and fallback drafts automatically</div></div>
+    </div>
+
+    <h3>Data &amp; Utility</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">lead-extractor</div><div class="desc">Pull structured lead records from Excel, CSV, Google Sheets, or pasted tables — normalises names, emails, and guest info</div></div>
+      <div class="agent-card"><div class="name">text-sanitizer</div><div class="desc">Strip cursed characters (smart quotes, em dashes, zero-width spaces, BOM) from any text before it goes into emails or docs</div></div>
+    </div>
+
+    <h3>Google Calendar</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">calendar-viewer</div><div class="desc">See upcoming events and find free time</div></div>
+      <div class="agent-card"><div class="name">calendar-scheduler</div><div class="desc">Create, update, and delete events</div></div>
+    </div>
+
+    <h3>Google Workspace</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">docs-editor</div><div class="desc">Create and edit Google Docs</div></div>
+      <div class="agent-card"><div class="name">sheets-editor</div><div class="desc">Create and edit Google Sheets with charts and formulas</div></div>
+      <div class="agent-card"><div class="name">slides-editor</div><div class="desc">Build and edit Google Slides presentations</div></div>
+      <div class="agent-card"><div class="name">drive-manager</div><div class="desc">Full Drive file management — organise, share, move, delete</div></div>
+    </div>
+
+    <h3>Chrome DevTools</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">page-debugger</div><div class="desc">Diagnose console errors and JS exceptions on any webpage</div></div>
+      <div class="agent-card"><div class="name">performance-auditor</div><div class="desc">Measure load time, find slow resources, get a fix list</div></div>
+      <div class="agent-card"><div class="name">ui-inspector</div><div class="desc">Inspect DOM elements, styles, and accessibility</div></div>
+    </div>
+
+    <h3>Meta</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">agent-supervisor</div><div class="desc">Health-check all agents — fix struggling ones, retire broken ones</div></div>
+      <div class="agent-card"><div class="name">mcp-wrapper-factory</div><div class="desc">Auto-generate focused agents from any new MCP</div></div>
+      <div class="agent-card"><div class="name">windows-porter</div><div class="desc">Port any macOS/Linux agent to Windows — translates bash/macOS commands to PowerShell equivalents automatically</div></div>
+    </div>
+
+    <h3>Windows — File Management</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">ram-optimizer-win</div><div class="desc">Diagnose RAM on Windows via PowerShell + WMI</div></div>
+      <div class="agent-card"><div class="name">storage-cleaner-win</div><div class="desc">Find duplicates, Temp junk, browser caches on Windows</div></div>
+      <div class="agent-card"><div class="name">stale-file-hunter-win</div><div class="desc">Find untouched files on Windows via PowerShell</div></div>
+      <div class="agent-card"><div class="name">corrupted-file-scanner-win</div><div class="desc">Check images, PDFs, archives, Office docs for corruption on Windows</div></div>
+    </div>
+
+    <h3>Windows — Orchestration &amp; System</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">parallel-orchestrator-win</div><div class="desc">Run multiple Windows agents simultaneously in parallel waves</div></div>
+      <div class="agent-card"><div class="name">bash-cmd-runner-win</div><div class="desc">Run PowerShell commands in parallel with timing and error reporting</div></div>
+      <div class="agent-card"><div class="name">mcp-installer-win</div><div class="desc">Find and install MCPs on Windows end-to-end including auth</div></div>
+      <div class="agent-card"><div class="name">agent-supervisor-win</div><div class="desc">Health-check all Windows agents — fix struggling ones, retire broken ones</div></div>
+      <div class="agent-card"><div class="name">mcp-wrapper-factory-win</div><div class="desc">Generate focused agents from any new MCP on Windows</div></div>
+    </div>
+
+    <h3>Windows — Research</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">researcher-win</div><div class="desc">Web research with source citations — Windows state protocol</div></div>
+      <div class="agent-card"><div class="name">verifier-win</div><div class="desc">Fact-check and cross-reference claims — Windows state protocol</div></div>
+      <div class="agent-card"><div class="name">youtube-channel-scout-win</div><div class="desc">Find and rank YouTube channels — Windows state protocol</div></div>
+    </div>
+
+    <h3>Windows — Gmail</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">gmail-inbox-triage-win</div><div class="desc">Prioritised inbox summary on Windows</div></div>
+      <div class="agent-card"><div class="name">gmail-drafter-win</div><div class="desc">Write and send emails from plain English on Windows</div></div>
+      <div class="agent-card"><div class="name">gmail-search-assistant-win</div><div class="desc">Find emails in plain English on Windows</div></div>
+      <div class="agent-card"><div class="name">multi-person-gmail-blaster-win</div><div class="desc">Send personalised emails to many recipients in parallel on Windows</div></div>
+    </div>
+
+    <h3>Windows — Google Workspace &amp; Calendar</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">calendar-viewer-win</div><div class="desc">See upcoming events and find free time — Windows</div></div>
+      <div class="agent-card"><div class="name">calendar-scheduler-win</div><div class="desc">Create, update, and delete calendar events — Windows</div></div>
+      <div class="agent-card"><div class="name">docs-editor-win</div><div class="desc">Create and edit Google Docs — Windows</div></div>
+      <div class="agent-card"><div class="name">sheets-editor-win</div><div class="desc">Create and edit Google Sheets with charts and formulas — Windows</div></div>
+      <div class="agent-card"><div class="name">slides-editor-win</div><div class="desc">Build and edit Google Slides presentations — Windows</div></div>
+      <div class="agent-card"><div class="name">drive-manager-win</div><div class="desc">Full Drive file management — organise, share, move, delete — Windows</div></div>
+    </div>
+
+    <h3>Windows — Chrome DevTools</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">page-debugger-win</div><div class="desc">Diagnose console errors and JS exceptions — Windows</div></div>
+      <div class="agent-card"><div class="name">performance-auditor-win</div><div class="desc">Measure load time, find slow resources — Windows</div></div>
+      <div class="agent-card"><div class="name">ui-inspector-win</div><div class="desc">Inspect DOM, styles, and accessibility — Windows</div></div>
+    </div>
+
+    <h3>Windows — Data &amp; Utility</h3>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="name">lead-extractor-win</div><div class="desc">Extract structured leads from Excel/CSV/Sheets — Windows PowerShell detection</div></div>
+      <div class="agent-card"><div class="name">text-sanitizer-win</div><div class="desc">Strip cursed characters before sending emails or docs — Windows</div></div>
+    </div>
+  </div>
+
+  <hr class="divider" id="usage">
+
+  <!-- Step 6 - Usage -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <h2>How to Use</h2>
+    </div>
+    <p>Open Claude Code in the agents folder and invoke any agent with <code>@</code>:</p>
+
+    <h3>Examples</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <code># Triage your inbox
+@gmail-inbox-triage triage my unread emails
+
+# Create a Google Sheet
+@sheets-editor create a budget spreadsheet with columns: Category, Planned, Actual
+
+# Clean up your Mac
+@parallel-orchestrator scan for stale files, duplicates, and corrupted files at the same time
+
+# Debug a slow webpage
+@performance-auditor audit https://example.com
+
+# Free up RAM
+@ram-optimizer my Mac feels slow
+
+# Send an email
+@gmail-drafter email john@example.com saying the meeting is moved to Thursday
+
+# Run commands fast
+@bash-cmd-runner run npm install, then build and lint in parallel
+
+# Send event emails to everyone on a list
+@lead-extractor read FindingBilly.xlsx
+@text-sanitizer clean all the email bodies
+@multi-person-gmail-blaster send the update email to everyone</code>
+    </div>
+
+    <h3>Tips</h3>
+    <ul class="checklist">
+      <li>Agents remember their last run — if you run the same scan twice in 24h, they'll skip unchanged files automatically</li>
+      <li>Agents write errors to <code>_shared/problems.md</code> — run <code>@agent-supervisor</code> weekly to health-check everything</li>
+      <li>Add a new MCP? Run <code>@mcp-wrapper-factory</code> to automatically generate focused agents for it</li>
+      <li>Use <code>@parallel-orchestrator</code> for any task with multiple independent parts — it's much faster</li>
+    </ul>
+
+    <div class="callout good">
+      <span class="icon">✅</span>
+      <p>All agents use state caching — they skip work they've already done, making repeated runs much faster.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Troubleshooting -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-header">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:1rem;">🔧</div>
+      <h2>Troubleshooting</h2>
+      </div>
+    </div>
+
+    <h3>MCP not loading after restart</h3>
+    <p>Run <code>claude mcp list</code> in Terminal to see which servers connected. If one shows an error, re-run its auth command.</p>
+
+    <h3>"Access blocked" during Google OAuth</h3>
+    <p>Your app is in test mode. Go to <strong>Google Cloud Console → APIs &amp; Services → OAuth consent screen → Test users</strong> and add your Gmail address.</p>
+
+    <h3>Agent can't find a file</h3>
+    <p>Re-run <code>bash setup.sh</code> — the paths may not have been patched if you moved the folder after initial setup.</p>
+
+    <h3>Chrome DevTools MCP fails</h3>
+    <p>Make sure Chrome is installed at <code>/Applications/Google Chrome.app</code>. Install via: <code>brew install --cask google-chrome</code></p>
+
+    <h3>Workspace token expires</h3>
+    <p>The token auto-refreshes every 45 minutes while the MCP is running. If it expires (e.g. after a long idle), restart Claude Code — the MCP will re-authenticate using the stored refresh token.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p>Built with Claude Code · <a href="https://claude.ai/code">claude.ai/code</a></p>
+</footer>
+
+<script>
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 1800);
+  });
+}
+</script>
+</body>
+</html>
