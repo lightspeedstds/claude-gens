@@ -24,6 +24,7 @@ This directory contains a library of Claude agents. When working inside this pro
 | Generating HTML button pages with ElevenLabs audio for GitHub/static hosting | `agents/mcp-powered/elevenlabs/elevenlabs-github-exporter` |
 | Removing background from an image | `agents/mcp-powered/removebg/removebg` |
 | User pastes a credential, API key, token, or secret in chat | `agents/utility/sensitive-info-handler` — run immediately |
+| Same fix tried 2+ times and still not working | `agents/utility/repeat-debugger` — find root cause before retrying |
 | Converting text to speech, generating voiceover | `agents/mcp-powered/elevenlabs/elevenlabs-tts` |
 
 ---
